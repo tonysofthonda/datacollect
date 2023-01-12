@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>datacollect-persistence</artifactId>
+	<packaging>jar</packaging>
+
+	<parent>
+		<groupId>com.honda.hdm.datacollect</groupId>
+		<artifactId>datacollect</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<name>${custom.prefix}-persistence</name>
+	<description>${custom.name} module for Persistence Implementation</description>
+
+	<dependencies>
+		<!--OIF Monitor required modules -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>${custom.prefix}-domain</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!--/OIF Monitor required modules -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.tomcat</groupId>
+					<artifactId>tomcat-juli</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.tomcat</groupId>
+					<artifactId>tomcat-jdbc</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-core</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+</project>
