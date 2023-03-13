@@ -23,4 +23,6 @@ public interface IDcDealerGroupService extends IRecordStatusableService<DcDealer
     public DcDealerGroupDto findByNameDto(String name);
 
     public List<DcDealerGroupDto> findAllDto();
+
+	boolean existDealer(DcDealerGroup dcDealerGroup);
 }

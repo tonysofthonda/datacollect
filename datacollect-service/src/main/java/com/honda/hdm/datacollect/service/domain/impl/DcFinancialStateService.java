@@ -1,5 +1,17 @@
 package com.honda.hdm.datacollect.service.domain.impl;
 
+import com.honda.hdm.datacollect.model.dto.FinancialActiveDto;
+import com.honda.hdm.datacollect.model.dto.AnalisysFinancialDto;
+import com.honda.hdm.datacollect.model.dto.FinancialPassiveDto;
+import com.honda.hdm.datacollect.model.dto.FinancialStateDto;
+import com.honda.hdm.datacollect.model.dto.IncomeDeductionDto;
+import com.honda.hdm.datacollect.model.dto.NameAccountDto;
+import com.honda.hdm.datacollect.model.dto.OtherIncomeDto;
+import com.honda.hdm.datacollect.model.dto.Page2and3FinancialDto;
+import com.honda.hdm.datacollect.model.dto.Page2and3PositionFinancialDto;
+import com.honda.hdm.datacollect.model.dto.GrossProfitPage4Dto;
+import com.honda.hdm.datacollect.model.dto.PassiveFinancialDto;
+import com.honda.hdm.datacollect.model.dto.PerMonthFinancialDto;
 import com.honda.hdm.datacollect.model.dto.dbconst.DcRecordStatusEnum;
 import com.honda.hdm.datacollect.model.entity.*;
 import com.honda.hdm.datacollect.model.entity.comm.EmailInstance;
@@ -8,16 +20,34 @@ import com.honda.hdm.datacollect.model.enums.EvaluationAreaEnum;
 import com.honda.hdm.datacollect.model.enums.FinancialStateStatusEnum;
 import com.honda.hdm.datacollect.model.enums.NotificationsEnum;
 import com.honda.hdm.datacollect.model.exception.DataCollectBusinessLogicException;
-import com.honda.hdm.datacollect.repository.DcAccountValueRepository;
+import com.honda.hdm.datacollect.repository.DcAccountRepository;
+import com.honda.hdm.datacollect.repository.DcActiveRepository;
+import com.honda.hdm.datacollect.repository.DcAnlisysFinancialStateRepository;
 import com.honda.hdm.datacollect.repository.DcDealerRepository;
 import com.honda.hdm.datacollect.repository.DcFinancialStateRepository;
-import com.honda.hdm.datacollect.repository.DcFinancialStateXAccountValueRepository;
+import com.honda.hdm.datacollect.repository.DcIncomeDeductionRepository;
+import com.honda.hdm.datacollect.repository.DcOtherIncomeRepository;
+import com.honda.hdm.datacollect.repository.DcPageTwoFinancialRepository;
+import com.honda.hdm.datacollect.repository.DcPassiveRepository;
+import com.honda.hdm.datacollect.repository.DcPerMounthFinancialStateRepository;
+import com.honda.hdm.datacollect.repository.DcPositionPage2FinancialRepository;
+import com.honda.hdm.datacollect.repository.DcGrossProfitAnalysisRepository;
+import com.honda.hdm.datacollect.repository.comm.DcNameAccountFinancialRepository;
 import com.honda.hdm.datacollect.service.converter.DtoConverter;
 import com.honda.hdm.datacollect.service.converter.ModelConverter;
 import com.honda.hdm.datacollect.service.domain.*;
+import com.honda.hdm.datacollect.service.excel.ExcelPerMonth;
+import com.honda.hdm.datacollect.service.excel.Excelpage2And3Position;
 import com.honda.hdm.datacollect.service.util.Helpers;
 import com.honda.hdm.datacollect.service.util.MailSenderService;
-import com.honda.hdm.datacollect.model.enums.*;
+import com.honda.hdm.datacollect.service.excel.ExcelActiveFinancial;
+import com.honda.hdm.datacollect.service.excel.ExcelAnalisys;
+import com.honda.hdm.datacollect.service.excel.ExcelIncomeDeductionFinancial;
+import com.honda.hdm.datacollect.service.excel.ExcelNameAccountFinancial;
+import com.honda.hdm.datacollect.service.excel.ExcelOtherIncomeFinancial;
+import com.honda.hdm.datacollect.service.excel.ExcelPage2And3Financial;
+import com.honda.hdm.datacollect.service.excel.ExcelPage4;
+import com.honda.hdm.datacollect.service.excel.ExcelPassiveFinancial;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.util.NumberToTextConverter;
@@ -38,6 +68,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -86,11 +117,69 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
     ModelConverter modelConverter;        
     
     @Autowired
-    private DcAccountValueRepository dcAccountValueRepository;
+    private DcActiveRepository dcActiveRepository;
     
     @Autowired
-    private DcFinancialStateXAccountValueRepository dcFinancialStateXAccountValueRepository;
-
+    private DcPassiveRepository dcPassiveRepository;
+    
+    @Autowired
+    private ExcelPerMonth perMonth;
+    
+    @Autowired
+    private ExcelNameAccountFinancial excelNameAccountFinancial;
+    
+    @Autowired
+    private DcAnlisysFinancialStateRepository dcAnlisysFinancialStateRepository;
+    
+    @Autowired
+    private DcPerMounthFinancialStateRepository dcPerMounthFinancialStateRepository;
+    
+    @Autowired
+    private DcNameAccountFinancialRepository dcNameAccountFinancialRepository;
+    
+    @Autowired
+    private ExcelAnalisys excelAnalisys;
+    
+    @Autowired
+    private ExcelActiveFinancial excelActiveFinancial;
+    
+    @Autowired
+    private ExcelPassiveFinancial excelPassiveFinancial;
+    
+    @Autowired
+    private ExcelPage2And3Financial excelPage2And3Financial;
+    
+    @Autowired
+    private DcPageTwoFinancialRepository dcPageTwoFinancialRepository;
+    
+    @Autowired
+    private Excelpage2And3Position excelpage2And3Position;
+    
+    
+    @Autowired
+    private ExcelOtherIncomeFinancial excelOtherIncomeFinancial;
+    
+    @Autowired
+    private ExcelIncomeDeductionFinancial excelIncomeDeductionFinancial;
+    
+    @Autowired
+    private ExcelPage4 excelPage3;
+    
+    @Autowired
+    private DcPositionPage2FinancialRepository dcPositionPage2FinancialRepository;
+    
+    @Autowired
+    private DcOtherIncomeRepository dcOtherIncomeRepository;
+    
+    @Autowired
+    private DcIncomeDeductionRepository dcIncomeDeductionRepository;
+    
+    @Autowired
+    private DcGrossProfitAnalysisRepository dcGrossProfitAnalysisRepository;
+    
+    @Autowired
+    private DcAccountRepository dcAccountRepository;
+    
     @Value("${custom.financial-state.max-rejects-send.email}")
     Integer maxRejects;
 
@@ -103,10 +192,10 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
     public DcFinancialState findFinancialStateByYearAndMonth(Integer year, Integer month, Long dealerId) {
         return repository.findFinancialStateByYearAndMonthAndDealerId(year,month,dealerId);
     }
-
+    
     @Override
     public Page<DcFinancialStateDto> filterFinancialStateDto(BigDecimal dealerGroupId, Long dealerId, Integer year, Integer month, Long statusId, Pageable pageable) {
-        return filterFinancialState(dealerGroupId, dealerId, year, month, statusId, pageable).map(dtoConverter::convertFinancialStateMin);
+        return repository.filterFinancialState(dealerGroupId, dealerId, year, month, statusId, pageable).map(dtoConverter::convertFinancialStateMin);
     }
 
     @Override
@@ -387,62 +476,12 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 		
 	}
 	
-	private List<?> processWorkbook(File file, Long id) throws DataCollectBusinessLogicException {
-		List<PasiveDto> models = null;
+	private void processWorkbook(File file, Long id) throws DataCollectBusinessLogicException {
 		try {
-			models = processWorkbookExcel(file);
-			if(models == null || models.isEmpty()) {
-				throw new DataCollectBusinessLogicException("Not found data");
-			}
-			
-			return mapExcelToEntity(models, id);
+			processWorkbookExcel(file, id);
 		} catch(Exception ex) {
 			throw new DataCollectBusinessLogicException(ex.getMessage());
 		}
-	}
-	
-	private List<?> mapExcelToEntity(List<PasiveDto> passiveListDto, Long id) {
-		List<?> modelError = new ArrayList<>();
-		
-		Optional<DcFinancialState> financialState = repository.findById(id);
-		if(!financialState.isPresent()) {
-			throw new NullPointerException("Not found financial state");
-		}
-		
-		List<DcFinancialStateXAccountValue> dcAccountValue = new ArrayList<>();
-		for(PasiveDto passiveDto : passiveListDto) {
-			if(!passiveDto.getSubtitle().trim().equals("")) {
-				DcFinancialStateXAccountValue dcValue = saveFinancialAndAccount(passiveDto, financialState.get());
-				if(dcValue != null) {
-					dcAccountValue.add(dcValue);
-				}
-			}
-		}
-		
-		if(!dcAccountValue.isEmpty())
-			dcFinancialStateXAccountValueRepository.saveAll(dcAccountValue);
-
-		return modelError;
-		
-	}
-	
-	private DcFinancialStateXAccountValue saveFinancialAndAccount(PasiveDto passiveDto, DcFinancialState financialState) {
-		DcAccountValue dc = findDcAccount(passiveDto.getSubtitle().trim(), passiveDto.getHeader().trim(), passiveDto.getPage(), passiveDto.getNoAccount(), passiveDto.getParent());
-		DcFinancialStateXAccountValue value = null;
-		if(dc != null) {
-			DcFinancialStateXAccountValue dcValue = dcFinancialStateXAccountValueRepository.findByAccountValueAndFinancialState(dc.getId(), financialState.getId());
-			if(dcValue == null) {
-				value = new DcFinancialStateXAccountValue();
-				value.setAccountValue(dc);
-				value.setFinancialState(financialState);
-				value.setValue(passiveDto.getValue() == null || passiveDto.getValue().trim().equals("") ? "0" : passiveDto.getValue());
-				return value;
-			} else {
-				dcValue.setValue(passiveDto.getValue() == null || passiveDto.getValue().trim().equals("") ? "0" : passiveDto.getValue());
-				return dcValue;
-			}
-		}
-		return value;
 	}
 	
 	/**
@@ -450,20 +489,148 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 	 * @param file
 	 * @return
 	 */
-	public List<PasiveDto> processWorkbookExcel(File file) throws Exception {
+	@Transactional
+	public void processWorkbookExcel(File file, Long id) throws Exception {
 		if(file == null) {
 			throw new NullPointerException("File is invalid");
 		}
-		
-		List<PasiveDto> passiveDto = new ArrayList<>();
-		passiveDto.addAll(readWorkbookPage1(file));
-		passiveDto.addAll(readModelsPage2And3(validFile(file, "PAGINA 2 Y 3", 9)));
-		passiveDto.addAll(readModelsPage4(validFile(file, "PAGINA 4", 9)));
-		return passiveDto;		
+		System.out.println("id: " + id);
+		Optional<DcFinancialState> dcFinancialState = repository.findById(id);
+		System.out.println("DcFinancialState: " + dcFinancialState.isPresent());
+		if(dcFinancialState.isPresent() && dcFinancialState.get().getBstate() != 1) {
+			dcGrossProfitAnalysisRepository.saveAll(page4(file, id));
+			dcIncomeDeductionRepository.saveAll(page2AndIncomeDeduction(file, id));
+			dcOtherIncomeRepository.saveAll(page2And3OtherIncome(file, id));
+			dcPositionPage2FinancialRepository.saveAll(page2And3Position(file, id));
+			dcPageTwoFinancialRepository.saveAll(page2And3(file, id));
+			dcNameAccountFinancialRepository.saveAll(readWorkbookPage1NameAccount(file, id));
+			dcPerMounthFinancialStateRepository.saveAll(readWorkbookPage1PerMount(file, id));
+			dcAnlisysFinancialStateRepository.saveAll(readWorkbookPage1Analisys(file, id));
+			dcActiveRepository.saveAll(readWorkbookPage1Active(file, id));
+			dcPassiveRepository.saveAll(readWorkbookPage1Passive(file, id));
+			dcFinancialState.get().setBstate(1l);
+			repository.save(dcFinancialState.get());
+		}
 	}
 	
+	private List<DcGrossProfitAnalysis> page4(File file, Long id) throws FileNotFoundException, ParseException, DataCollectBusinessLogicException, IOException {
+		List<GrossProfitPage4Dto> page4Dto = excelPage3.readModelsPage3(validFile(file, "PAGINA 4", 9));
+		List<DcGrossProfitAnalysis> dcGrossProfitAnalysisList = new ArrayList<>();
+		page4Dto.stream().forEach(data -> {
+			DcGrossProfitAnalysis dcGrossProfitAnalysis = new DcGrossProfitAnalysis();
+			dcGrossProfitAnalysis.setUnitCurrentMonth(data.getUnitCurrentMonth());
+			dcGrossProfitAnalysis.setSalesCurrentMonth(data.getSalesCurrentMonth());
+			dcGrossProfitAnalysis.setGrossProfitCurrentMonth(data.getGrossProfitCurrentMonth());
+			dcGrossProfitAnalysis.setSoldCurrentMonth(data.getSoldUnistCurrentMonth());
+			dcGrossProfitAnalysis.setDeptoVehicleCurrentMonth(data.getDeptoCarNewCurrentMonth());
+			dcGrossProfitAnalysis.setDateCreate(new Date());
+			dcGrossProfitAnalysis.setFinancialStateId(id);
+			dcGrossProfitAnalysis.setNoLine(data.getNoLine());
+			dcGrossProfitAnalysis.setNoAccount(data.getNoAccount());
+			Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getDeptoCarNewCurrentMonth(), "4", data.getNoAccount());
+			if(dcAccount.isPresent()) {
+				dcGrossProfitAnalysis.setDcAccount(dcAccount.get());
+				dcGrossProfitAnalysisList.add(dcGrossProfitAnalysis);
+			}
+		});
+		dcGrossProfitAnalysisRepository.saveAll(dcGrossProfitAnalysisList);
+		return dcGrossProfitAnalysisList;
+	}
 	
-	private List<PasiveDto> readWorkbookPage1(File file) throws Exception {
+	private List<DcIncomeDeduction> page2AndIncomeDeduction(File file, Long id) throws FileNotFoundException, ParseException, DataCollectBusinessLogicException, IOException {
+		List<IncomeDeductionDto> incomeDeductionDto = excelIncomeDeductionFinancial.readModelsOtherIncome(validFile(file, "PAGINA 2 Y 3", 9));
+		List<DcIncomeDeduction> dcIncomeDeductionList = new ArrayList<>();
+		incomeDeductionDto.stream().forEach(data -> {
+			DcIncomeDeduction dcIncomeDeduction = new DcIncomeDeduction();
+			dcIncomeDeduction.setNameAccount(data.getNameAccount());
+			dcIncomeDeduction.setNoAccount(data.getNoAccount());
+			dcIncomeDeduction.setMonth(data.getMonth());
+			dcIncomeDeduction.setDateCreate(new Date());
+			dcIncomeDeduction.setFinancialStateId(id);
+			Optional<DcAccount> dcAccount = dcAccountRepository.findTopByNameAndPage(data.getNameAccount(), "2 y 3");
+			if(dcAccount.isPresent()) {
+				dcIncomeDeduction.setDcAccount(dcAccount.get());
+				dcIncomeDeductionList.add(dcIncomeDeduction);
+			}
+		});
+		dcIncomeDeductionRepository.saveAll(dcIncomeDeductionList);
+		return dcIncomeDeductionList;
+	}
+	
+	private List<DcOtherIncome> page2And3OtherIncome(File file, Long id) throws FileNotFoundException, ParseException, DataCollectBusinessLogicException, IOException {
+		List<OtherIncomeDto> otherIncomeListDto = excelOtherIncomeFinancial.readModelsOtherIncome(validFile(file, "PAGINA 2 Y 3", 9));
+		List<DcOtherIncome> dcOtherIncomeList = new ArrayList<>();
+		otherIncomeListDto.stream().forEach(data -> {
+			DcOtherIncome dcOtherIncome = new DcOtherIncome();
+			dcOtherIncome.setNameAccount(data.getNameAccount());
+			dcOtherIncome.setNoAccount(data.getNoAccount());
+			dcOtherIncome.setMonth(data.getMonth());
+			dcOtherIncome.setDateCreate(new Date());
+			dcOtherIncome.setFinancialStateId(id);
+			Optional<DcAccount> dcAccount = dcAccountRepository.findTopByNameAndPage(data.getNameAccount(), "2 y 3");
+			if(dcAccount.isPresent()) {
+				dcOtherIncome.setDcAccount(dcAccount.get());
+				dcOtherIncomeList.add(dcOtherIncome);
+			}
+		});
+		dcOtherIncomeRepository.saveAll(dcOtherIncomeList);
+		return dcOtherIncomeList;
+	}
+	
+	private List<DcPositionPage2Financial> page2And3Position(File file, Long id) throws FileNotFoundException, ParseException, DataCollectBusinessLogicException, IOException {
+		List<Page2and3PositionFinancialDto> page2and3PositionFinancialDto = excelpage2And3Position.readModelsPage2And3(validFile(file, "PAGINA 2 Y 3", 9));
+		List<DcPositionPage2Financial> dcPositionPage2FinancialList = new ArrayList<>();
+		page2and3PositionFinancialDto.stream().forEach(data -> {
+			DcPositionPage2Financial dcPositionPage2Financial = new DcPositionPage2Financial();
+			dcPositionPage2Financial.setPosition(data.getPosition());
+			dcPositionPage2Financial.setColumnA(data.getColumnA());
+			dcPositionPage2Financial.setColumnB(data.getColumnB());
+			dcPositionPage2Financial.setColumnC(data.getColumnC());
+			dcPositionPage2Financial.setColumnD(data.getColumnD());
+			dcPositionPage2Financial.setColumnE(data.getColumnE());
+			dcPositionPage2Financial.setColumnF(data.getColumnF());
+			dcPositionPage2Financial.setTotal(data.getTotal());
+			dcPositionPage2Financial.setDateCreate(new Date());
+			dcPositionPage2Financial.setFinancialStateId(id);
+			Optional<DcAccount> dcAccount = dcAccountRepository.findTopByNameAndPage(data.getPosition(), "2 y 3");
+			if(dcAccount.isPresent()) {
+				dcPositionPage2Financial.setDcAccount(dcAccount.get());
+				dcPositionPage2FinancialList.add(dcPositionPage2Financial);
+			}
+		});
+		dcPositionPage2FinancialRepository.saveAll(dcPositionPage2FinancialList);
+		return dcPositionPage2FinancialList;
+	}
+	
+	private List<DcPageTwoFinancial> page2And3(File file, Long id) throws FileNotFoundException, ParseException, DataCollectBusinessLogicException, IOException {
+		List<Page2and3FinancialDto> page2and3 = excelPage2And3Financial.readModelsPage2And3(validFile(file, "PAGINA 2 Y 3", 9));
+		List<DcPageTwoFinancial> dcPageTwoFinancial = new ArrayList<>();
+		page2and3.stream().forEach(data -> {
+			DcPageTwoFinancial pageTwoAndThree = new DcPageTwoFinancial();
+			pageTwoAndThree.setNameAccount(data.getNameAccount());
+			pageTwoAndThree.setNoAccount(data.getNoAccount());
+			pageTwoAndThree.setTotalIncomeExpenses(data.getTotalIncomeExpensesPerMonth());
+			pageTwoAndThree.setGrossProfit(data.getGrossProfit());
+			pageTwoAndThree.setNewHondaMonth(data.getNewHondaMonth());
+			pageTwoAndThree.setNewOthersMonth(data.getNewOthersMonth());
+			pageTwoAndThree.setUsedMonth(data.getUsedMonth());
+			pageTwoAndThree.setDeptoService(data.getDeptoService());
+			pageTwoAndThree.setDeptoWorkshop(data.getDeptoWorkshop());
+			pageTwoAndThree.setSpareParts(data.getSpareParts());
+			pageTwoAndThree.setDateCreate(new Date());
+			pageTwoAndThree.setFinancialStateId(id);
+			pageTwoAndThree.setNoLine(data.getNoLine());
+			Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getNameAccount(), "2 y 3", data.getNoAccount());
+			if(dcAccount.isPresent()) {
+				pageTwoAndThree.setDcAccount(dcAccount.get());
+				dcPageTwoFinancial.add(pageTwoAndThree);
+			}
+		});
+		dcPageTwoFinancialRepository.saveAll(dcPageTwoFinancial);
+		return dcPageTwoFinancial;
+	}
+	
+	private List<DcActiveFinancial> readWorkbookPage1Active(File file, Long id) throws Exception {
 		try {
 			XSSFSheet sheet = validFile(file, "PAGINA 1", 9);
 			
@@ -474,7 +641,173 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 			if(!validMonth(rowDate.getCell(9).getDateCellValue())) {
 				throw new DataCollectBusinessLogicException("Month invalid");
 			}
-			return readModels(sheet);
+			List<DcActiveFinancial> dcActiveFinancialList = new ArrayList<>();
+			List<FinancialActiveDto> activeFinancialListDto = excelActiveFinancial.readModelsActive(sheet);
+			activeFinancialListDto.stream().forEach(data -> {
+				DcActiveFinancial dcActive = new DcActiveFinancial();
+				dcActive.setTitle(data.getTitle());
+				dcActive.setNoAccount(data.getNoAccount());
+				dcActive.setImporte(data.getImporte());
+				dcActive.setFinancialStateId(id);
+				dcActive.setNoLine(data.getNoLine());
+				dcActive.setDateCreate(new Date());
+				Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getTitle(), "1", data.getNoAccount());
+				if(dcAccount.isPresent()) {
+					dcActive.setDcAccount(dcAccount.get());
+					dcActiveFinancialList.add(dcActive);
+				}
+			});
+			return dcActiveFinancialList;
+		} catch(Exception ex) {
+			throw new DataCollectBusinessLogicException(ex.getMessage());
+		}
+	}
+	
+	private List<DcPerMounthFinancialState> readWorkbookPage1PerMount(File file, Long id) throws Exception {
+		try {
+			XSSFSheet sheet = validFile(file, "PAGINA 1", 9);
+			
+			XSSFRow rowDealer = sheet.getRow(6);
+			findDealer(rowDealer);
+
+			XSSFRow rowDate = sheet.getRow(7);
+			if(!validMonth(rowDate.getCell(9).getDateCellValue())) {
+				throw new DataCollectBusinessLogicException("Month invalid");
+			}
+			List<DcPerMounthFinancialState> perMountList = new ArrayList<>();
+			List<PerMonthFinancialDto> perMonthDtoList = this.perMonth.readModelsPerMonth(sheet);
+			perMonthDtoList.stream().forEach(data -> {
+				DcPerMounthFinancialState perMount = new DcPerMounthFinancialState();
+				perMount.setMonth(data.getMonth());
+				perMount.setUnitHonda(data.getUnitHonda());
+				perMount.setNewOthers(data.getNewOthers());
+				perMount.setUnitUsedRetail(data.getUnitUsedRetail());
+				perMount.setUnitUsedWholesale(data.getUnitUsedWholesale());
+				perMount.setProfitOrLoss(data.getProfitOrLoss());
+				perMount.setDateCreate(new Date());
+				perMount.setFinancialStateId(id);
+				perMount.setNoLine(data.getNoLine());
+				Optional<DcAccount> dcAccount = Optional.empty();
+				if(perMount.getMonth().equals("Total")) {
+					dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getMonth(), "1", String.valueOf(data.getProfitOrLoss().longValue()));
+				} else {
+					dcAccount = dcAccountRepository.findByNameAndPage(data.getMonth(), "1");
+				}
+				
+				if(dcAccount.isPresent()) {
+					perMount.setDcAccount(dcAccount.get());
+					perMountList.add(perMount);
+				}				
+			});
+			return perMountList;
+		} catch(Exception ex) {
+			throw new DataCollectBusinessLogicException(ex.getMessage());
+		}
+	}
+	
+	private List<DcAnlisysFinancialState> readWorkbookPage1Analisys(File file, Long id) throws Exception {
+		try {
+			XSSFSheet sheet = validFile(file, "PAGINA 1", 9);
+			
+			XSSFRow rowDealer = sheet.getRow(6);
+			findDealer(rowDealer);
+
+			XSSFRow rowDate = sheet.getRow(7);
+			if(!validMonth(rowDate.getCell(9).getDateCellValue())) {
+				throw new DataCollectBusinessLogicException("Month invalid");
+			}
+			List<DcAnlisysFinancialState> dcAnlisysFinancialStateList = new ArrayList<>();
+			List<AnalisysFinancialDto> analisysFinancialListDto = excelAnalisys.readModelsAnalisys(sheet);
+			analisysFinancialListDto.stream().forEach(data -> {
+				DcAnlisysFinancialState analisys = new DcAnlisysFinancialState();
+				analisys.setType(data.getType());
+				analisys.setNoAccount(data.getNoAccount());
+				analisys.setFullyToUpDate(data.getFullyToUpDate());
+				analisys.setPastDueAccount3160(data.getPastDueAccount3160());
+				analisys.setPastDueAccount6190(data.getPastDueAccount6190());
+				analisys.setPastDueAccountsobre90(data.getPastDueAccountsobre90());
+				analisys.setQuestionableAccount(data.getQuestionableAccount());		
+				analisys.setDateCreate(new Date());
+				analisys.setFinancialStateId(id);
+				analisys.setNoLine(data.getNoLine());
+				Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getType(), "1", data.getNoAccount());
+				if(dcAccount.isPresent()) {
+					analisys.setDcAccount(dcAccount.get());
+					dcAnlisysFinancialStateList.add(analisys);
+				}
+			});
+			return dcAnlisysFinancialStateList;
+		} catch(Exception ex) {
+			throw new DataCollectBusinessLogicException(ex.getMessage());
+		}
+	}
+	
+	private List<NameAccountFinancial> readWorkbookPage1NameAccount(File file, Long id) throws Exception {
+		try {
+			XSSFSheet sheet = validFile(file, "PAGINA 1", 9);
+			
+			XSSFRow rowDealer = sheet.getRow(6);
+			findDealer(rowDealer);
+
+			XSSFRow rowDate = sheet.getRow(7);
+			if(!validMonth(rowDate.getCell(9).getDateCellValue())) {
+				throw new DataCollectBusinessLogicException("Month invalid");
+			}
+			List<NameAccountFinancial> nameAccountFinancial = new ArrayList<>();
+			List<NameAccountDto> nameAccountDtoList  = excelNameAccountFinancial.readModelsNameAccount(sheet);
+			nameAccountDtoList.stream().forEach(data -> {
+				NameAccountFinancial nameAccount = new NameAccountFinancial();
+				nameAccount.setNameAccount(data.getNameAccount());
+				nameAccount.setNoAccount(data.getNoAccount());
+				nameAccount.setCost(data.getCost());
+				nameAccount.setAccomulatedDepreciation(data.getAccomulatedDepreciation());
+				nameAccount.setImporte(data.getImporte());
+				nameAccount.setDateCreate(new Date());
+				nameAccount.setFinancialStateId(id);
+				nameAccount.setNoLine(data.getNoLine());
+				Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getNameAccount(), "1", data.getNoAccount());
+				if(dcAccount.isPresent()) {
+					nameAccount.setDcAccount(dcAccount.get());
+					nameAccountFinancial.add(nameAccount);
+				}
+			});
+			return nameAccountFinancial;
+		} catch(Exception ex) {
+			throw new DataCollectBusinessLogicException(ex.getMessage());
+		}
+	}
+	
+	private List<DcPassiveFinancial> readWorkbookPage1Passive(File file, Long id) throws Exception {
+		try {
+			XSSFSheet sheet = validFile(file, "PAGINA 1", 9);
+			
+			XSSFRow rowDealer = sheet.getRow(6);
+			findDealer(rowDealer);
+
+			XSSFRow rowDate = sheet.getRow(7);
+			if(!validMonth(rowDate.getCell(9).getDateCellValue())) {
+				throw new DataCollectBusinessLogicException("Month invalid");
+			}
+			List<PassiveFinancialDto> passiveFinancialListDto = new ArrayList<>();
+			List<DcPassiveFinancial> dcPassiveFinancialList = new ArrayList<>();
+			
+			passiveFinancialListDto = excelPassiveFinancial.readModelsPassive(sheet);
+			
+			passiveFinancialListDto.stream().filter(filter -> !filter.getTitle().equals("")).forEach(data -> {
+				DcPassiveFinancial dcActive = new DcPassiveFinancial();
+				dcActive.setNoAccount(data.getNoAccount());
+				dcActive.setImporte(data.getImporte());
+				dcActive.setTitle(data.getTitle());
+				dcActive.setDateCreate(new Date());
+				dcActive.setFinancialStateId(id);
+				dcActive.setNoLine(data.getNoLine());
+				Optional<DcAccount> dcAccount = dcAccountRepository.findByNameAndPageAndAccountNumber(data.getTitle(), "1", data.getNoAccount());
+				if(dcAccount.isPresent()) {
+					dcActive.setDcAccount(dcAccount.get());
+					dcPassiveFinancialList.add(dcActive);
+				}				
+			});
+			return dcPassiveFinancialList;
 		} catch(Exception ex) {
 			throw new DataCollectBusinessLogicException(ex.getMessage());
 		}
@@ -515,218 +848,8 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 		
 		return cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) ? true : false;
 	}
+		
 	
-	private List<PasiveDto> readModelsPage4(XSSFSheet sheet) throws ParseException {
-		List<PasiveDto> models = new ArrayList<>();
-		int index = 10; //We start in 1 because 0 is the header row
-		XSSFRow row = sheet.getRow(10);
-		List<PasiveDto> model = new ArrayList<>();
-		while(row != null) {
-			model = readModelPage4(row);
-			row = sheet.getRow(++index);
-			//Error null row
-			if(row.getRowNum() == 75) {
-				break;
-			}
-			
-			if(model != null) {
-				models.addAll(model);
-			}
-		}
-		return models;
-	}
-	
-	private List<PasiveDto> readModelsPage2And3(XSSFSheet sheet) throws ParseException {
-		List<PasiveDto> models = new ArrayList<>();
-		int index = 10; //We start in 1 because 0 is the header row
-		XSSFRow row = sheet.getRow(10);
-		List<PasiveDto> model = new ArrayList<>();
-		while(row != null) {
-			model = readModelPage2And3(row);
-			row = sheet.getRow(++index);
-			if(row.getRowNum() == 78) {
-				break;
-			}
-			
-			if(model != null) {
-				models.addAll(model);
-			}
-		}
-		return models;
-	}
-	
-	private List<PasiveDto> readModels(XSSFSheet sheet) throws ParseException {
-		List<PasiveDto> models = new ArrayList<>();
-		int index = 10; //We start in 1 because 0 is the header row
-		XSSFRow row = sheet.getRow(10);
-		List<PasiveDto> model = new ArrayList<>();
-		while(row != null) {
-			model = readModel(row);
-			row = sheet.getRow(++index);
-			if(row != null && row.getRowNum() == 87) {
-				break;
-			}
-			
-			if(model != null) {
-				models.addAll(model);
-			}
-		}
-		return models;
-	}
-	
-	private List<PasiveDto> readModelPage4(XSSFRow modelRow) throws ParseException {
-		List<PasiveDto> passiveListDto = new ArrayList<>();
-		
-		XSSFCell cell = modelRow.getCell(Page4.F.getColumn());
-		XSSFCell value = modelRow.getCell(Page4.B.getColumn());
-		XSSFCell account = modelRow.getCell(Page4.G.getColumn());
-		passiveListDto.add(new PasiveDto("Unidades", getCellString(cell), getCellString(value), getCellString(account), "4", "Mes Actual"));
-		
-		value = modelRow.getCell(Page2And3Enum.C.getColumn());
-		passiveListDto.add(new PasiveDto("Ventas", getCellString(cell), getCellString(value), getCellString(account), "4", "Mes Actual"));
-		
-		value = modelRow.getCell(Page2And3Enum.D.getColumn());
-		passiveListDto.add(new PasiveDto("Utilidad bruta", getCellString(cell), getCellString(value), getCellString(account), "4", "Mes Actual"));
-		
-		value = modelRow.getCell(Page2And3Enum.E.getColumn());
-		passiveListDto.add(new PasiveDto("% unidades vendidas", getCellString(cell), getCellString(value), getCellString(account), "4", "Mes Actual"));
-
-		return passiveListDto;
-	}
-	
-	private List<PasiveDto> readModelPage2And3(XSSFRow modelRow) throws ParseException {
-		List<PasiveDto> passiveListDto = new ArrayList<>();
-		
-		XSSFCell cell = modelRow.getCell(Page2And3Enum.B.getColumn());
-		XSSFCell value = modelRow.getCell(Page2And3Enum.D.getColumn());
-		XSSFCell account = modelRow.getCell(Page2And3Enum.C.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "Total de ingresos y egresos de la concesionaria"));
-		
-		value = modelRow.getCell(Page2And3Enum.E.getColumn());
-		passiveListDto.add(new PasiveDto("GANANCIAS BRUTAS VENTAS %", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "Total de ingresos y egresos de la concesionaria"));
-		
-		value = modelRow.getCell(Page2And3Enum.F.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "A Depto Hond Nuevos"));
-		
-		value = modelRow.getCell(Page2And3Enum.G.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "B Otros Vehículos Nuevos"));
-		
-		value = modelRow.getCell(Page2And3Enum.H.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "C Depto Vehículos Usados"));
-		
-		value = modelRow.getCell(Page2And3Enum.I.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "D Depto de servicios"));
-		
-		value = modelRow.getCell(Page2And3Enum.J.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "E Depto taller y carroceria"));
-		
-		value = modelRow.getCell(Page2And3Enum.K.getColumn());
-		passiveListDto.add(new PasiveDto("Mes", getCellString(cell), getCellString(value), getCellString(account), "2 y 3", "F Depto refacc y accesorios"));
-
-		return passiveListDto;
-	}
-	
-	private List<PasiveDto> readModel(XSSFRow modelRow) throws ParseException {
-		List<PasiveDto> passiveListDto = new ArrayList<>();
-		XSSFCell cellNoLine = modelRow.getCell(PasiveEnum.NO_LINE.getColumn());
-		Long noLine = null;
-		if(isNumeric(getCellString(cellNoLine)))
-			noLine = new BigDecimal(getCellString(cellNoLine)).longValue();
-		if(modelRow.getRowNum() < 79 && noLine != null) {
-			XSSFCell cell = modelRow.getCell(PasiveEnum.PASIVOS.getColumn());
-			XSSFCell cellImport1 = modelRow.getCell(PasiveEnum.IMPORT.getColumn());
-			Double importe1 = getCellString(cellImport1) == null || getCellString(cellImport1).trim().equals("") ? 0.0 : Double.valueOf(getCellString(cellImport1));
-			if(getCellString(cell).equals("CUENTAS POR PAGAR") || getCellString(cell).trim().equals("") ||
-					getCellString(cell).equals("CAPITAL DE TRABAJO NETO")) {
-				XSSFCell cellBetween = modelRow.getCell(PasiveEnum.PASIVOS_BETWEEN.getColumn());
-				XSSFCell account = modelRow.getCell(PasiveEnum.ACCOUNTNO.getColumn());
-				passiveListDto.add(new PasiveDto("Importe", getCellString(cellBetween), importe1 + "", getCellString(account), "1", null));
-			} else {
-				XSSFCell cellImport = modelRow.getCell(PasiveEnum.IMPORT.getColumn());
-				Double importe = getCellString(cellImport) == null || getCellString(cellImport).trim().equals("") ? 0.0 : Double.valueOf(getCellString(cellImport));
-				if(noLine >= 49 && noLine <= 61) {
-					passiveListDto.addAll(unitPerMonth(modelRow));
-				} else {
-					XSSFCell account = modelRow.getCell(PasiveEnum.ACCOUNTNO.getColumn());
-					passiveListDto.add(new PasiveDto("Importe", getCellString(cell), importe + "", getCellString(account), "1", null));
-				}
-			}
-		} else {
-			passiveListDto.addAll(analysisAccount(modelRow));
-		}
-		
-		return passiveListDto;
-	}
-	
-	private boolean isNumeric(String s) {
-        if (s == null || s.equals("")) {
-            return false;
-        }
- 
-        for (int i = 0; i < s.length(); i++)
-        {
-            char c = s.charAt(i);
-            if ((c < '0' || c > '9') && c != '.') {
-                return false;
-            }
-        }
-        return true;
-    }
-	
-	private List<PasiveDto> unitPerMonth(XSSFRow modelRow) {
-		XSSFCell month = modelRow.getCell(PasiveEnum.PASIVOS.getColumn());
-		XSSFCell cellBetween = modelRow.getCell(PasiveEnum.PASIVOS_BETWEEN.getColumn());
-		XSSFCell account = modelRow.getCell(PasiveEnum.ACCOUNTNO.getColumn());
-		List<PasiveDto> passiveListDto = new ArrayList<>();
-		passiveListDto.add(new PasiveDto("Unidades Honda", getCellString(month), getCellString(cellBetween) + "", getCellString(account), "1", null));
-		cellBetween = modelRow.getCell(PasiveEnum.NEW1.getColumn());
-		passiveListDto.add(new PasiveDto("Nuevas Otras", getCellString(month), getCellString(cellBetween) + "", getCellString(account), "1", null));
-		cellBetween = modelRow.getCell(PasiveEnum.NEW2.getColumn());
-		passiveListDto.add(new PasiveDto("Menudeo", getCellString(month), getCellString(cellBetween) + "", getCellString(account), "1", null));
-		cellBetween = modelRow.getCell(PasiveEnum.NEW3.getColumn());
-		passiveListDto.add(new PasiveDto("Mayoreo", getCellString(month), getCellString(cellBetween) + "", getCellString(account), "1", null));
-		cellBetween = modelRow.getCell(PasiveEnum.ACCOUNTNO.getColumn());
-		passiveListDto.add(new PasiveDto("Utilidad o perdida", getCellString(month), getCellString(cellBetween) + "", getCellString(account), "1", null));
-		
-		return passiveListDto;
-	}
-	
-	private List<PasiveDto> analysisAccount(XSSFRow modelRow) {
-		XSSFCell b1 = modelRow.getCell(PasiveEnum.B1.getColumn());
-		XSSFCell e1 = modelRow.getCell(PasiveEnum.E1.getColumn());
-		XSSFCell f1 = modelRow.getCell(PasiveEnum.F1.getColumn());
-		XSSFCell g1 = modelRow.getCell(PasiveEnum.G1.getColumn());
-		XSSFCell i1 = modelRow.getCell(PasiveEnum.I1.getColumn());
-		XSSFCell k1 = modelRow.getCell(PasiveEnum.K1.getColumn());
-		XSSFCell m1 = modelRow.getCell(PasiveEnum.ACCOUNTNO.getColumn());
-		
-		List<PasiveDto> passiveListDto = new ArrayList<>();
-		passiveListDto.add(new PasiveDto("Total al corriente", getCellString(b1), getCellString(f1), getCellString(e1), "1", null));
-		passiveListDto.add(new PasiveDto("31-60", getCellString(b1), getCellString(g1), getCellString(e1), "1", null));
-		passiveListDto.add(new PasiveDto("61-90", getCellString(b1), getCellString(i1), getCellString(e1), "1", null));
-		passiveListDto.add(new PasiveDto("Sobre 90", getCellString(b1), getCellString(k1), getCellString(e1), "1", null));
-		passiveListDto.add(new PasiveDto("Cuentas dudosas", getCellString(b1), getCellString(m1), getCellString(e1), "1", null));
-		
-		return passiveListDto;
-	}
-		
-	private DcAccountValue findDcAccount(String subtitle, String header, String page, String accountNumber, String parent) {
-		DcAccountValue dcAccountValue = new DcAccountValue();
-		if(parent == null) {
-			if(accountNumber == null || accountNumber.trim().equals("")) {
-				dcAccountValue = dcAccountValueRepository.findByAccountNameAndTypeAccountValueNameAndAccountPageAndAccountAccountNumberIsNull(subtitle, header, page);
-			} else {
-				dcAccountValue = dcAccountValueRepository.findByAccountNameAndTypeAccountValueNameAndAccountPageAndAccountAccountNumber(subtitle, header, page, accountNumber);
-			}
-		} else {
-			
-			dcAccountValue = dcAccountValueRepository.findByAccountNameAndTypeAccountValueNameAndAccountPageAndAccountAccountNumberAndTypeAccountValueTypeAccountParentTypeAccountParentName(subtitle, header, page, accountNumber, parent);
-			if(dcAccountValue != null)
-				return dcAccountValue;
-		}
-		return dcAccountValue;
-	}
-
 	private String getCellString(XSSFCell cell) {
 		if(cell == null) {
 			return null;
@@ -758,5 +881,323 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 		    }
 		}
 		return "";
+	}
+	
+	@Override
+	public List<FinancialActiveDto> getFinancialActive(Long financialId) {
+		List<DcActiveFinancial> dcActive = dcActiveRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<FinancialActiveDto> financialActiveDtoList = new ArrayList<>();
+		dcActive.forEach(data -> {
+			FinancialActiveDto financialActiveDto = new FinancialActiveDto();
+			financialActiveDto.setId(data.getId());
+			financialActiveDto.setImporte(data.getImporte());
+			financialActiveDto.setNoAccount(data.getNoAccount());
+			financialActiveDto.setTitle(data.getTitle());
+			financialActiveDto.setNoLine(data.getNoLine());
+			financialActiveDtoList.add(financialActiveDto);
+		});
+		return financialActiveDtoList;
+	}
+
+	@Override
+	public List<FinancialPassiveDto> getFinancialPassive(Long financialId) {
+		List<DcPassiveFinancial> dcPassive = dcPassiveRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<FinancialPassiveDto> dcPassiveList = new ArrayList<>();
+		dcPassive.stream().forEach(data -> {
+			FinancialPassiveDto passiveDto = new FinancialPassiveDto();
+			passiveDto.setImporte(data.getImporte());
+			passiveDto.setNoAccount(data.getNoAccount());
+			passiveDto.setTitle(data.getTitle());
+			passiveDto.setNoLine(data.getNoLine());
+			passiveDto.setId(data.getId());
+			dcPassiveList.add(passiveDto);
+			
+		});
+		return dcPassiveList;
+	}
+
+	@Override
+	public List<AnalisysFinancialDto> getFinancialAnalisys(Long financialId) {
+		List<DcAnlisysFinancialState> analisysList = dcAnlisysFinancialStateRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<AnalisysFinancialDto> analisysListDto = new ArrayList<>();
+		analisysList.stream().forEach(data -> {
+			AnalisysFinancialDto analisysFinancialDto = new AnalisysFinancialDto();
+			analisysFinancialDto.setType(data.getType());
+			analisysFinancialDto.setFullyToUpDate(data.getFullyToUpDate());
+			analisysFinancialDto.setNoAccount(data.getNoAccount());
+			analisysFinancialDto.setPastDueAccount3160(data.getPastDueAccount3160());
+			analisysFinancialDto.setPastDueAccount6190(data.getPastDueAccount6190());
+			analisysFinancialDto.setPastDueAccountsobre90(data.getPastDueAccountsobre90());
+			analisysFinancialDto.setQuestionableAccount(data.getQuestionableAccount());
+			analisysFinancialDto.setNoLine(data.getNoLine());
+			analisysFinancialDto.setId(data.getId());
+			analisysListDto.add(analisysFinancialDto);
+		});
+		return analisysListDto;
+	}
+
+	@Override
+	public List<NameAccountDto> getFinancialNameAccount(Long financialId) {
+		List<NameAccountFinancial> analisysList = dcNameAccountFinancialRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<NameAccountDto> nameAccountListDto = new ArrayList<>();
+		analisysList.stream().forEach(data -> {
+			NameAccountDto nameAccountDto = new NameAccountDto();
+			nameAccountDto.setAccomulatedDepreciation(data.getAccomulatedDepreciation());
+			nameAccountDto.setCost(data.getCost());
+			nameAccountDto.setImporte(data.getImporte());
+			nameAccountDto.setNameAccount(data.getNameAccount());
+			nameAccountDto.setNoAccount(data.getNoAccount());
+			nameAccountDto.setNoLine(data.getNoLine());
+			nameAccountDto.setId(data.getId());
+			nameAccountListDto.add(nameAccountDto);
+		});
+		return nameAccountListDto;
+	}
+
+	@Override
+	public List<PerMonthFinancialDto> getPerMonthFinancial(Long financialId) {
+		List<DcPerMounthFinancialState> analisysList = dcPerMounthFinancialStateRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<PerMonthFinancialDto> perMonthFinancialListDto = new ArrayList<>();
+		analisysList.stream().forEach(data -> {
+			PerMonthFinancialDto perMonthFinancialDto = new PerMonthFinancialDto();
+			perMonthFinancialDto.setMonth(data.getMonth());
+			perMonthFinancialDto.setNewOthers(data.getNewOthers());
+			perMonthFinancialDto.setProfitOrLoss(data.getProfitOrLoss());
+			perMonthFinancialDto.setUnitHonda(data.getUnitHonda());
+			perMonthFinancialDto.setUnitUsedRetail(data.getUnitUsedRetail());
+			perMonthFinancialDto.setUnitUsedWholesale(data.getUnitUsedWholesale());
+			perMonthFinancialDto.setId(data.getId());
+			perMonthFinancialDto.setNoLine(data.getNoLine());
+			perMonthFinancialListDto.add(perMonthFinancialDto);
+		});
+		return perMonthFinancialListDto;
+	}
+	
+	@Override
+	public List<Page2and3FinancialDto> getIncomeAndExpesesPage3(Long financialId) {
+		List<DcPageTwoFinancial> dcPageTwoFinancial = dcPageTwoFinancialRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<Page2and3FinancialDto> page2and3FinancialListDto = new ArrayList<>();
+		dcPageTwoFinancial.stream().forEach(data -> {
+			Page2and3FinancialDto page2and3FinancialDto = new Page2and3FinancialDto();
+			page2and3FinancialDto.setId(data.getId());
+			page2and3FinancialDto.setNameAccount(data.getNameAccount());
+			page2and3FinancialDto.setNoAccount(data.getNoAccount());
+			page2and3FinancialDto.setTotalIncomeExpensesPerMonth(data.getTotalIncomeExpenses());
+			page2and3FinancialDto.setGrossProfit(data.getGrossProfit());
+			page2and3FinancialDto.setNewHondaMonth(data.getNewHondaMonth());
+			page2and3FinancialDto.setNewOthersMonth(data.getNewOthersMonth());
+			page2and3FinancialDto.setUsedMonth(data.getUsedMonth());
+			page2and3FinancialDto.setDeptoService(data.getDeptoService());
+			page2and3FinancialDto.setDeptoWorkshop(data.getDeptoWorkshop());
+			page2and3FinancialDto.setSpareParts(data.getSpareParts());
+			page2and3FinancialDto.setId(data.getId());
+			page2and3FinancialDto.setNoLine(data.getNoLine());
+			page2and3FinancialListDto.add(page2and3FinancialDto);
+		});
+		return page2and3FinancialListDto;
+	}
+
+	@Override
+	public List<Page2and3PositionFinancialDto> getPositionPage3(Long financialId) {
+		List<DcPositionPage2Financial> dcPositionPage2FinancialList = dcPositionPage2FinancialRepository.findByFinancialStateIdOrderByIdDesc(financialId);
+		List<Page2and3PositionFinancialDto> page2and3PositionFinancialListDto = new ArrayList<>();
+		dcPositionPage2FinancialList.stream().forEach(data -> {
+			Page2and3PositionFinancialDto page2and3PositionFinancialDto = new Page2and3PositionFinancialDto();
+			page2and3PositionFinancialDto.setPosition(data.getPosition());
+			page2and3PositionFinancialDto.setColumnA(data.getColumnA());
+			page2and3PositionFinancialDto.setColumnB(data.getColumnB());
+			page2and3PositionFinancialDto.setColumnC(data.getColumnC());
+			page2and3PositionFinancialDto.setColumnD(data.getColumnD());
+			page2and3PositionFinancialDto.setColumnE(data.getColumnE());
+			page2and3PositionFinancialDto.setColumnF(data.getColumnF());
+			page2and3PositionFinancialDto.setTotal(data.getTotal());
+			page2and3PositionFinancialDto.setId(data.getId());
+			page2and3PositionFinancialListDto.add(page2and3PositionFinancialDto);
+		});
+		return page2and3PositionFinancialListDto;
+	}
+
+	@Override
+	public List<OtherIncomeDto> getOtherIncomePage3(Long financialId) {
+		List<DcOtherIncome> dcOtherIncomeList = dcOtherIncomeRepository.findByFinancialStateIdOrderByIdDesc(financialId);
+		List<OtherIncomeDto> otherIncomeListDto = new ArrayList<>();
+		dcOtherIncomeList.stream().forEach(data -> {
+			OtherIncomeDto otherIncomeDto = new OtherIncomeDto();
+			otherIncomeDto.setNameAccount(data.getNameAccount());
+			otherIncomeDto.setNoAccount(data.getNoAccount());
+			otherIncomeDto.setMonth(data.getMonth());
+			otherIncomeDto.setId(data.getId());
+			otherIncomeListDto.add(otherIncomeDto);
+		});
+		return otherIncomeListDto;
+	}
+
+	@Override
+	public List<IncomeDeductionDto> getIncomeDeductionPage3(Long financialId) {
+		List<DcIncomeDeduction> dcIncomeDeductionList = dcIncomeDeductionRepository.findByFinancialStateIdOrderByIdDesc(financialId);
+		List<IncomeDeductionDto> incomeDeductionListDto = new ArrayList<>();
+		dcIncomeDeductionList.stream().forEach(data -> {
+			IncomeDeductionDto incomeDeductionDto = new IncomeDeductionDto();
+			incomeDeductionDto.setNameAccount(data.getNameAccount());
+			incomeDeductionDto.setNoAccount(data.getNoAccount());
+			incomeDeductionDto.setMonth(data.getMonth());
+			incomeDeductionDto.setId(data.getId());
+			incomeDeductionListDto.add(incomeDeductionDto);
+		});
+		
+		return incomeDeductionListDto;
+	}
+
+	@Override
+	public List<GrossProfitPage4Dto> getIncomeAndExpensesPage4(Long financialId) {
+		List<DcGrossProfitAnalysis> dcGrossProfitAnalysisList = dcGrossProfitAnalysisRepository.findByFinancialStateIdOrderByNoLineAsc(financialId);
+		List<GrossProfitPage4Dto> grossProfitPage4ListDto = new ArrayList<>();
+		dcGrossProfitAnalysisList.stream().forEach(data -> {
+			GrossProfitPage4Dto grossProfitPage4Dto = new GrossProfitPage4Dto();
+			grossProfitPage4Dto.setDeptoCarNewCurrentMonth(data.getDeptoVehicleCurrentMonth());
+			grossProfitPage4Dto.setGrossProfitCurrentMonth(data.getGrossProfitCurrentMonth());
+			grossProfitPage4Dto.setSalesCurrentMonth(data.getSalesCurrentMonth());
+			grossProfitPage4Dto.setSoldUnistCurrentMonth(data.getSoldCurrentMonth());
+			grossProfitPage4Dto.setUnitCurrentMonth(data.getUnitCurrentMonth());
+			grossProfitPage4Dto.setNoLine(data.getNoLine());
+			grossProfitPage4Dto.setId(data.getId());
+			grossProfitPage4ListDto.add(grossProfitPage4Dto);
+		});
+		return grossProfitPage4ListDto;
+	}
+
+	@Override
+	public FinancialStateDto getInformation() {
+		Optional<DcFinancialState> dcFinancialState = repository.findById(349L);
+		FinancialStateDto financialStateDto = new FinancialStateDto();
+		if(dcFinancialState.isPresent()) {
+			DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+			financialStateDto.setCity(dcFinancialState.get().getDealer().getDcCityId().getName());
+			financialStateDto.setDealerNumber(dcFinancialState.get().getDealer().getDealerNumber());
+			financialStateDto.setPeriodFrom(null);
+			financialStateDto.setPeriodTo(df.format(dcFinancialState.get().getLimitDate()));
+			financialStateDto.setState(dcFinancialState.get().getDealer().getDcCityId().getDcStateId().getName());
+			financialStateDto.setZip(dcFinancialState.get().getDealer().getZipCode());
+		}
+		return financialStateDto;
+	}
+	
+	@Override
+	public void updateActive(FinancialActiveDto dcPerMounthFinancialState) {
+		Optional<DcActiveFinancial> perMonth = dcActiveRepository.findById(dcPerMounthFinancialState.getId());
+		if(perMonth.isPresent()) {
+			perMonth.get().setImporte(dcPerMounthFinancialState.getImporte());
+			dcActiveRepository.save(perMonth.get());
+		}
+	}
+	
+	@Override
+	public void updatePassive(FinancialPassiveDto financialPassiveDto) {
+		Optional<DcPassiveFinancial> dcPassive = dcPassiveRepository.findById(financialPassiveDto.getId());
+		if(dcPassive.isPresent()) {
+			dcPassive.get().setImporte(financialPassiveDto.getImporte());
+			dcPassiveRepository.save(dcPassive.get());
+		}
+	}
+
+	@Override
+	public void updateOtherActiveFinancial(NameAccountDto nameAccountDto) {
+		Optional<NameAccountFinancial> dcOtherActive = dcNameAccountFinancialRepository.findById(nameAccountDto.getId());
+		if(dcOtherActive.isPresent()) {
+			dcOtherActive.get().setImporte(nameAccountDto.getImporte());
+			dcOtherActive.get().setCost(nameAccountDto.getCost());
+			dcOtherActive.get().setAccomulatedDepreciation(nameAccountDto.getAccomulatedDepreciation());
+			dcNameAccountFinancialRepository.save(dcOtherActive.get());
+		}
+	}
+	
+	@Override
+	public void updateOtherPassiveFinancial(PerMonthFinancialDto perMonthFinancialDto) {
+		Optional<DcPerMounthFinancialState> dcOtherActive = dcPerMounthFinancialStateRepository.findById(perMonthFinancialDto.getId());
+		if(dcOtherActive.isPresent()) {
+			dcOtherActive.get().setNewOthers(perMonthFinancialDto.getNewOthers());
+			dcOtherActive.get().setProfitOrLoss(perMonthFinancialDto.getProfitOrLoss());
+			dcOtherActive.get().setUnitHonda(perMonthFinancialDto.getUnitHonda());
+			dcOtherActive.get().setUnitUsedRetail(perMonthFinancialDto.getUnitUsedRetail());
+			dcOtherActive.get().setUnitUsedWholesale(perMonthFinancialDto.getUnitUsedWholesale());
+			dcPerMounthFinancialStateRepository.save(dcOtherActive.get());
+		}
+	}
+	
+	@Override
+	public void updateAnalisysFinancial(AnalisysFinancialDto analisysFinancialDto) {
+		Optional<DcAnlisysFinancialState> dcAnalisys = dcAnlisysFinancialStateRepository.findById(analisysFinancialDto.getId());
+		if(dcAnalisys.isPresent()) {
+			dcAnalisys.get().setFullyToUpDate(analisysFinancialDto.getFullyToUpDate());
+			dcAnalisys.get().setPastDueAccount3160(analisysFinancialDto.getPastDueAccount3160());
+			dcAnalisys.get().setPastDueAccount6190(analisysFinancialDto.getPastDueAccount6190());
+			dcAnalisys.get().setPastDueAccountsobre90(analisysFinancialDto.getPastDueAccountsobre90());
+			dcAnalisys.get().setQuestionableAccount(analisysFinancialDto.getQuestionableAccount());
+			dcAnlisysFinancialStateRepository.save(dcAnalisys.get());
+		}
+	}
+
+	@Override
+	public void getIncomeAndExpesesPage3(Page2and3FinancialDto page2and3FinancialDto) {
+		Optional<DcPageTwoFinancial> dcPageTwoFinancial = dcPageTwoFinancialRepository.findById(page2and3FinancialDto.getId());
+		if(dcPageTwoFinancial.isPresent()) {
+			dcPageTwoFinancial.get().setDeptoService(page2and3FinancialDto.getDeptoService());
+			dcPageTwoFinancial.get().setDeptoWorkshop(page2and3FinancialDto.getDeptoWorkshop());
+			dcPageTwoFinancial.get().setGrossProfit(page2and3FinancialDto.getGrossProfit());
+			dcPageTwoFinancial.get().setNewHondaMonth(page2and3FinancialDto.getNewHondaMonth());
+			dcPageTwoFinancial.get().setNewOthersMonth(page2and3FinancialDto.getNewOthersMonth());
+			dcPageTwoFinancial.get().setSpareParts(page2and3FinancialDto.getSpareParts());
+			dcPageTwoFinancial.get().setTotalIncomeExpenses(page2and3FinancialDto.getTotalIncomeExpensesPerMonth());
+			dcPageTwoFinancial.get().setUsedMonth(page2and3FinancialDto.getUsedMonth());
+			dcPageTwoFinancialRepository.save(dcPageTwoFinancial.get());
+		}		
+	}
+
+	@Override
+	public void getPositionPage3(Page2and3PositionFinancialDto page2and3PositionFinancialDto) {
+		System.out.println(page2and3PositionFinancialDto.getId());
+		Optional<DcPositionPage2Financial> dcPositionPage2Financial = dcPositionPage2FinancialRepository.findById(page2and3PositionFinancialDto.getId());
+		if(dcPositionPage2Financial.isPresent()) {
+			dcPositionPage2Financial.get().setColumnA(page2and3PositionFinancialDto.getColumnA());
+			dcPositionPage2Financial.get().setColumnB(page2and3PositionFinancialDto.getColumnB());
+			dcPositionPage2Financial.get().setColumnC(page2and3PositionFinancialDto.getColumnC());
+			dcPositionPage2Financial.get().setColumnD(page2and3PositionFinancialDto.getColumnD());
+			dcPositionPage2Financial.get().setColumnE(page2and3PositionFinancialDto.getColumnE());
+			dcPositionPage2Financial.get().setColumnF(page2and3PositionFinancialDto.getColumnF());
+			dcPositionPage2Financial.get().setTotal(page2and3PositionFinancialDto.getTotal());
+			System.out.println(dcPositionPage2Financial.get().getColumnA());
+			dcPositionPage2FinancialRepository.save(dcPositionPage2Financial.get());
+		}		
+	}
+
+	@Override
+	public void updateOtherIncomePage3(OtherIncomeDto otherIncomeDto) {
+		Optional<DcOtherIncome> dcOtherIncome = dcOtherIncomeRepository.findById(otherIncomeDto.getId());
+		if(dcOtherIncome.isPresent()) {
+			dcOtherIncome.get().setMonth(otherIncomeDto.getMonth());
+			dcOtherIncomeRepository.save(dcOtherIncome.get());
+		}		
+	}
+
+	@Override
+	public void updateIncomeDeductionPage3(IncomeDeductionDto incomeDeductionDto) {
+		Optional<DcIncomeDeduction> dcIncomeDeduction = dcIncomeDeductionRepository.findById(incomeDeductionDto.getId());
+		if(dcIncomeDeduction.isPresent()) {
+			dcIncomeDeduction.get().setMonth(incomeDeductionDto.getMonth());
+			dcIncomeDeductionRepository.save(dcIncomeDeduction.get());		
+		}	
+	}
+
+	@Override
+	public void updateIncomeAndExpensesPage4(GrossProfitPage4Dto grossProfitPage4Dto) {
+		Optional<DcGrossProfitAnalysis> dcGrossProfitAnalysis = dcGrossProfitAnalysisRepository.findById(grossProfitPage4Dto.getId());
+		if(dcGrossProfitAnalysis.isPresent()) {
+			dcGrossProfitAnalysis.get().setDeptoVehicleCurrentMonth(grossProfitPage4Dto.getDeptoCarNewCurrentMonth());
+			dcGrossProfitAnalysis.get().setGrossProfitCurrentMonth(grossProfitPage4Dto.getGrossProfitCurrentMonth());
+			dcGrossProfitAnalysis.get().setSalesCurrentMonth(grossProfitPage4Dto.getSalesCurrentMonth());
+			dcGrossProfitAnalysis.get().setSoldCurrentMonth(grossProfitPage4Dto.getSoldUnistCurrentMonth());
+			dcGrossProfitAnalysis.get().setUnitCurrentMonth(grossProfitPage4Dto.getUnitCurrentMonth());
+			dcGrossProfitAnalysisRepository.save(dcGrossProfitAnalysis.get());
+		}
 	}
 }

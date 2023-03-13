@@ -51,9 +51,9 @@ public class DtoConverter {
         dto.setId(dealerGroup.getId());
         dto.setName(dealerGroup.getName());
         dto.setStatus(dealerGroup.getDcRecordStatusId());
-        if(dealerGroup.getDcDealerList() != null){
-            dto.setDealers(dealerGroup.getDcDealerList().stream().map(this::convertDealerWithoutDealerGroups).collect(Collectors.toList()));
-        }
+//        if(dealerGroup.getDcDealerList() != null){
+//            dto.setDealers(dealerGroup.getDcDealerList().stream().map(this::convertDealerWithoutDealerGroups).collect(Collectors.toList()));
+//        }
         return dto;
     }
 
@@ -479,7 +479,7 @@ public class DtoConverter {
             dto.setUserType(convertUserType(financialStateXStatus.getUserType()));
         }
         if(financialStateXStatus.getErrors() != null){
-            //dto.setErrors(financialStateXStatus.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
+            dto.setErrors(financialStateXStatus.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
         }
         return dto;
     }
@@ -686,7 +686,7 @@ public class DtoConverter {
         dto.setAccountValue(convertAccountValue(financialStateXAccountValue.getAccountValue()));
         dto.setFinancialState(convertFinancialStateWithoutAccountValues(financialStateXAccountValue.getFinancialState()));
         if(financialStateXAccountValue.getErrors() != null){
-//            dto.setErrors(financialStateXAccountValue.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
+            dto.setErrors(financialStateXAccountValue.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
         }
         return dto;
     }
@@ -708,10 +708,9 @@ public class DtoConverter {
         DcFinancialStateXAccountValueDto dto = new DcFinancialStateXAccountValueDto();
         dto.setId(financialStateXAccountValue.getId());
         dto.setValue(financialStateXAccountValue.getValue());
-//        System.out.println(financialStateXAccountValue.getValue());
         dto.setAccountValue(convertAccountValue(financialStateXAccountValue.getAccountValue()));
         if(financialStateXAccountValue.getErrors() != null){
-//            dto.setErrors(financialStateXAccountValue.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
+            dto.setErrors(financialStateXAccountValue.getErrors().stream().map(this::convertAccountError).collect(Collectors.toList()));
         }
         return dto;
     }

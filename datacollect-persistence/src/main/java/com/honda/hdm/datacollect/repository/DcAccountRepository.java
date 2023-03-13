@@ -10,10 +10,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DcAccountRepository extends IBaseRepository<DcAccount, Long> {
 
+	public Optional<DcAccount> findTopByNameAndPage(String name, String page);
+	
+	public Optional<DcAccount> findByNameAndPage(String name, String page);
+	
+	public Optional<DcAccount> findByNameAndPageAndAccountNumber(String name, String page, String accountNumber);
+	
     public List<DcAccount> findByName(String name);
 
     @Query("select account from DcAccount account join account.model")

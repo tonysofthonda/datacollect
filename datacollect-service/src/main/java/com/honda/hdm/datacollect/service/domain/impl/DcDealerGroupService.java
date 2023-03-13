@@ -9,6 +9,7 @@ import com.honda.hdm.datacollect.model.dto.dbconst.DcRecordStatusEnum;
 import com.honda.hdm.datacollect.model.entity.DcDealerGroup;
 import com.honda.hdm.datacollect.model.entity.dto.DcDealerGroupDto;
 import com.honda.hdm.datacollect.repository.DcDealerGroupRepository;
+import com.honda.hdm.datacollect.repository.DcDealerRepository;
 import com.honda.hdm.datacollect.service.converter.DtoConverter;
 import com.honda.hdm.datacollect.service.converter.ModelConverter;
 import com.honda.hdm.datacollect.service.domain.IDcDealerGroupService;
@@ -41,6 +42,9 @@ public class DcDealerGroupService extends RecordStatusableService<DcDealerGroup,
     
     @Autowired
     ModelConverter modelConverter;
+    
+    @Autowired
+    private DcDealerRepository dcDealerRepository;
 
     @Override
     public DcDealerGroup findByName(String name) {
@@ -113,6 +117,16 @@ public class DcDealerGroupService extends RecordStatusableService<DcDealerGroup,
     public Page<DcDealerGroupDto> findByRecordStatusIdDto(DcRecordStatusEnum dcRecordStatus, Pageable pageable) {
         Page<DcDealerGroupDto> paginatedDto = findByRecordStatusId(dcRecordStatus, pageable).map(dtoConverter::convertDealerGroup);
         return paginatedDto;
+    }
+    
+    @Override
+    public boolean existDealer(DcDealerGroup dcDealerGroup) {
+    	Long dealerGroup = dcDealerRepository.countByDcDealerGroup(dcDealerGroup);
+    	if(dealerGroup > 0) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
 
 }

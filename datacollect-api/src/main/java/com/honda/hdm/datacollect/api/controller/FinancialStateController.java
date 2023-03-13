@@ -2,6 +2,16 @@ package com.honda.hdm.datacollect.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.honda.hdm.datacollect.model.dto.AnalisysFinancialDto;
+import com.honda.hdm.datacollect.model.dto.FinancialActiveDto;
+import com.honda.hdm.datacollect.model.dto.FinancialPassiveDto;
+import com.honda.hdm.datacollect.model.dto.GrossProfitPage4Dto;
+import com.honda.hdm.datacollect.model.dto.IncomeDeductionDto;
+import com.honda.hdm.datacollect.model.dto.NameAccountDto;
+import com.honda.hdm.datacollect.model.dto.OtherIncomeDto;
+import com.honda.hdm.datacollect.model.dto.Page2and3FinancialDto;
+import com.honda.hdm.datacollect.model.dto.Page2and3PositionFinancialDto;
+import com.honda.hdm.datacollect.model.dto.PerMonthFinancialDto;
 import com.honda.hdm.datacollect.model.entity.DcDealer;
 import com.honda.hdm.datacollect.model.entity.dto.*;
 import com.honda.hdm.datacollect.model.enums.FinancialStateStatusEnum;
@@ -233,5 +243,135 @@ public class FinancialStateController {
     	financialStateService.processWorkbook(file.getBytes(), Long.valueOf(id));
 		return new ResponseEntity<>(HttpStatus.OK);
 			
-	}    
+	}
+    
+    @GetMapping(value = "/active/")
+	public ResponseEntity<?> getActive(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getFinancialActive(financialId), HttpStatus.OK);
+			
+	}
+    
+    @GetMapping(value = "/passive/")
+	public ResponseEntity<?> getPassive(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+    	return new ResponseEntity<>(financialStateService.getFinancialPassive(financialId), HttpStatus.OK);
+			
+	}
+    
+    @GetMapping(value = "/analisys/")
+	public ResponseEntity<?> getFinancialAnalisys(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+    	return new ResponseEntity<>(financialStateService.getFinancialAnalisys(financialId), HttpStatus.OK);
+			
+	}
+    
+    @GetMapping(value = "/name/account")
+	public ResponseEntity<?> getFinancialNameAccount(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+    	return new ResponseEntity<>(financialStateService.getFinancialNameAccount(financialId), HttpStatus.OK);
+			
+	}
+    
+    @GetMapping(value = "/per/month")
+	public ResponseEntity<?> getPerMonthFinancial(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+    	return new ResponseEntity<>(financialStateService.getPerMonthFinancial(financialId), HttpStatus.OK);
+			
+	}
+    
+    @PutMapping(value = "/active")
+	public ResponseEntity<?> updateActiveFinancial(@RequestBody FinancialActiveDto dcPerMounthFinancialState) throws IOException, DataCollectBusinessLogicException {
+    	financialStateService.updateActive(dcPerMounthFinancialState);
+		return new ResponseEntity<>(HttpStatus.OK);
+			
+	}
+    
+    @PutMapping(value = "/passive")
+	public ResponseEntity<?> updatePassiveFinancial(@RequestBody FinancialPassiveDto financialPassiveDto) throws IOException, DataCollectBusinessLogicException {
+    	financialStateService.updatePassive(financialPassiveDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+			
+	}
+    
+    @PutMapping(value = "/other/active")
+	public ResponseEntity<?> updateOtherActiveFinancial(@RequestBody NameAccountDto nameAccountDto) throws IOException, DataCollectBusinessLogicException {
+    	financialStateService.updateOtherActiveFinancial(nameAccountDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+			
+	}
+    
+    @PutMapping(value = "/other/passive/")
+	public ResponseEntity<?> updateOtherPassiveFinancial(@RequestBody PerMonthFinancialDto perMonthFinancialDto) throws IOException, DataCollectBusinessLogicException {
+    	financialStateService.updateOtherPassiveFinancial(perMonthFinancialDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+			
+	}
+	
+	@PutMapping(value = "/analisys")
+	public ResponseEntity<?> updateAnalisysFinancial(@RequestBody AnalisysFinancialDto analisysFinancialDto) throws IOException, DataCollectBusinessLogicException {
+    	financialStateService.updateAnalisysFinancial(analisysFinancialDto);
+		return new ResponseEntity<>(HttpStatus.OK);	
+	}
+	
+	@GetMapping(value = "/income/expeses/page3")
+	public ResponseEntity<?> getIncomeAndExpesesPage3(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getIncomeAndExpesesPage3(financialId), HttpStatus.OK);
+			
+	}
+	
+	@GetMapping(value = "/position/page3")
+	public ResponseEntity<?> getPositionPage3(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getPositionPage3(financialId), HttpStatus.OK);
+			
+	}
+	
+	@GetMapping(value = "/other/income/page3")
+	public ResponseEntity<?> getOtherIncomePage3(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getOtherIncomePage3(financialId), HttpStatus.OK);
+			
+	}
+	
+	@GetMapping(value = "/income/deduction/page3")
+	public ResponseEntity<?> getIncomeDeductionPage3(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getIncomeDeductionPage3(financialId), HttpStatus.OK);
+			
+	}
+	
+	@GetMapping(value = "/income/expenses/page4")
+	public ResponseEntity<?> getIncomeAndExpensesPage4(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getIncomeAndExpensesPage4(financialId), HttpStatus.OK);	
+	}
+	
+	@GetMapping(value = "/info")
+	public ResponseEntity<?> getInformation(@RequestParam("financialId") Long financialId) throws IOException, DataCollectBusinessLogicException {
+		return new ResponseEntity<>(financialStateService.getInformation(), HttpStatus.OK);
+			
+	}
+	
+	@PutMapping(value = "/income/expeses/page3")
+	public ResponseEntity<?> updateIncomeAndExpesesPage3(@RequestBody Page2and3FinancialDto page2and3FinancialDto) throws IOException, DataCollectBusinessLogicException {
+		financialStateService.getIncomeAndExpesesPage3(page2and3FinancialDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+			
+	}
+	
+	@PutMapping(value = "/position/page3")
+	public ResponseEntity<?> updatePositionPage3(@RequestBody Page2and3PositionFinancialDto page2and3PositionFinancialDto) throws IOException, DataCollectBusinessLogicException {
+		financialStateService.getPositionPage3(page2and3PositionFinancialDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@PutMapping(value = "/other/income/page3")
+	public ResponseEntity<?> updateOtherIncomePage3(@RequestBody OtherIncomeDto otherIncomeDto) throws IOException, DataCollectBusinessLogicException {
+		financialStateService.updateOtherIncomePage3(otherIncomeDto);
+		return new ResponseEntity<>(HttpStatus.OK);	
+	}
+	
+	@PutMapping(value = "/income/deduction/page3/")
+	public ResponseEntity<?> updateIncomeDeductionPage3(@RequestBody IncomeDeductionDto incomeDeductionDto) throws IOException, DataCollectBusinessLogicException {
+		financialStateService.updateIncomeDeductionPage3(incomeDeductionDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@PutMapping(value = "/income/expenses/page4")
+	public ResponseEntity<?> updateIncomeAndExpensesPage4(@RequestBody GrossProfitPage4Dto grossProfitPage4Dto) throws IOException, DataCollectBusinessLogicException {
+		financialStateService.updateIncomeAndExpensesPage4(grossProfitPage4Dto);
+		return new ResponseEntity<>(HttpStatus.OK);		
+	}
 }

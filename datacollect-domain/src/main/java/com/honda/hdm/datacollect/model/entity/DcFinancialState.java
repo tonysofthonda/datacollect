@@ -34,6 +34,9 @@ public class DcFinancialState extends RecordStatusableEntry implements Serializa
     @JoinColumn(name = "dc_dealer_id", referencedColumnName = "id")
     @ManyToOne
     private DcDealer dealer;
+    
+    @Column(name = "bstate")
+    private Long bstate;
 
     @OneToMany(mappedBy = "financialState", cascade = CascadeType.ALL)
     @OrderBy("dateAssignment asc")
@@ -97,4 +100,12 @@ public class DcFinancialState extends RecordStatusableEntry implements Serializa
     public void setAccountValues(List<DcFinancialStateXAccountValue> accountValues) {
         this.accountValues = accountValues;
     }
+
+	public Long getBstate() {
+		return bstate;
+	}
+
+	public void setBstate(Long bstate) {
+		this.bstate = bstate;
+	}
 }
