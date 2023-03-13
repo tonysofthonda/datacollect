@@ -42,6 +42,11 @@ public class DealerGroupController {
 
     @Autowired
     IDcDealerGroupService groupService;
+    
+    @GetMapping("/")
+    public ResponseEntity<?> listDealerGroups() {
+       return new ResponseEntity<>(groupService.findAllDto(), HttpStatus.OK);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<?> listDealerGroups(
@@ -131,7 +136,7 @@ public class DealerGroupController {
             response.addAttribute("friendlyError", new FriendlyError("Dealer Group not found", "warn"));
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        if (dealerGroup.getDcDealerList().size() > 0) {
+        if (groupService.existDealer(dealerGroup)) {
             response.addAttribute("friendlyError", new FriendlyError("This Dealer Group cant be disabled because have dealers", "warn"));
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }

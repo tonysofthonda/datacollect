@@ -64,10 +64,10 @@ public class CustomModelMapper extends ModelMapper {
     }
 
     private void dealerGroupConversion(){
-        this.createTypeMap(DcDealerGroup.class, DcDealerGroupDto.class)
-                .addMappings(mapper->{
-                    mapper.map((dealerGroup)->dealerGroup.getDcDealerList() != null ? dealerGroup.getDcDealerList(): new ArrayList<>(),DcDealerGroupDto::setDealers);
-                });
+//        this.createTypeMap(DcDealerGroup.class, DcDealerGroupDto.class)
+//                .addMappings(mapper->{
+//                    mapper.map((dealerGroup)->dealerGroup.getDcDealerList() != null ? dealerGroup.getDcDealerList(): new ArrayList<>(),DcDealerGroupDto::setDealers);
+//                });
         this.createTypeMap(DcDealerGroupDto.class, DcDealerGroup.class);
     }
 

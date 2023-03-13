@@ -56,8 +56,8 @@ public class DcDealerGroup extends RecordStatusableEntry implements Serializable
     @Basic(optional = false)
     @Column(name = "NAME")
     private String name;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "dcDealerGroup", fetch=FetchType.LAZY)
-    private List<DcDealer> dcDealerList;
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "dcDealerGroup", fetch=FetchType.LAZY)
+//    private List<DcDealer> dcDealerList;
 
     public DcDealerGroup() {
     }
@@ -87,14 +87,14 @@ public class DcDealerGroup extends RecordStatusableEntry implements Serializable
         this.name = name;
     }
 
-    @XmlTransient
-    public List<DcDealer> getDcDealerList() {
-        return dcDealerList;
-    }
-
-    public void setDcDealerList(List<DcDealer> dcDealerList) {
-        this.dcDealerList = dcDealerList;
-    }
+//    @XmlTransient
+//    public List<DcDealer> getDcDealerList() {
+//        return dcDealerList;
+//    }
+//
+//    public void setDcDealerList(List<DcDealer> dcDealerList) {
+//        this.dcDealerList = dcDealerList;
+//    }
 
     @Override
     public int hashCode() {

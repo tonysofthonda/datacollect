@@ -22,6 +22,11 @@ import java.util.Map;
 public class DealerController {
     @Autowired
     IDcDealerService dealerService;
+    
+    @GetMapping("/")
+    public ResponseEntity<?> getAllDealers() {
+       return new ResponseEntity<>(dealerService.findAllDto(), HttpStatus.OK);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<?> listDealers(
