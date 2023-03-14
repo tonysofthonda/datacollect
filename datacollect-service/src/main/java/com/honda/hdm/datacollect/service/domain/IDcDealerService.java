@@ -6,12 +6,11 @@ package com.honda.hdm.datacollect.service.domain;
 
 import com.honda.hdm.datacollect.model.entity.DcContactXDealer;
 import com.honda.hdm.datacollect.model.entity.DcDealer;
-import com.honda.hdm.datacollect.model.entity.DcContact;
-import com.honda.hdm.datacollect.model.entity.dto.DcContactDto;
 import com.honda.hdm.datacollect.model.entity.dto.DcDealerDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface IDcDealerService extends IRecordStatusableService<DcDealer, Long>, IDtoService<DcDealerDto, Long> {
@@ -36,5 +35,7 @@ public interface IDcDealerService extends IRecordStatusableService<DcDealer, Lon
     public DcDealerDto findOneByNameDto(String name);
 
     public DcDealerDto changeStatus(Boolean status, Long id);
+
+	List<DcDealerDto> findAllByDealerGroupDto(BigDecimal idDealerGroup);
 
 }

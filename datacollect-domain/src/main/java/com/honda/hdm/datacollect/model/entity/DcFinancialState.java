@@ -42,8 +42,8 @@ public class DcFinancialState extends RecordStatusableEntry implements Serializa
     @OrderBy("dateAssignment asc")
     private List<DcFinancialStateXStatus> statuses;
 
-    @OneToMany(mappedBy = "financialState", cascade = CascadeType.ALL)
-    private List<DcFinancialStateXAccountValue> accountValues;
+//    @OneToMany(mappedBy = "financialState", cascade = CascadeType.ALL)
+//    private List<DcFinancialStateXAccountValue> accountValues;
 
     public Long getId() {
         return id;
@@ -93,13 +93,13 @@ public class DcFinancialState extends RecordStatusableEntry implements Serializa
         this.statuses = statuses;
     }
 
-    public List<DcFinancialStateXAccountValue> getAccountValues() {
-        return accountValues;
-    }
-
-    public void setAccountValues(List<DcFinancialStateXAccountValue> accountValues) {
-        this.accountValues = accountValues;
-    }
+//    public List<DcFinancialStateXAccountValue> getAccountValues() {
+//        return accountValues;
+//    }
+//
+//    public void setAccountValues(List<DcFinancialStateXAccountValue> accountValues) {
+//        this.accountValues = accountValues;
+//    }
 
 	public Long getBstate() {
 		return bstate;

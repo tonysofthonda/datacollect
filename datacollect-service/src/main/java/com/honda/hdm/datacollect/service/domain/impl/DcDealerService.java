@@ -169,6 +169,11 @@ public class DcDealerService extends RecordStatusableService<DcDealer, Long> imp
     public List<DcDealerDto> findAllDto() {
         return findAll().stream().map(dtoConverter::convertDealer).collect(Collectors.toList());
     }
+    
+    @Override
+    public List<DcDealerDto> findAllByDealerGroupDto(BigDecimal idDealerGroup) {
+        return repository.findAllByDcDealerGroupId(idDealerGroup).stream().map(dtoConverter::convertDealer).collect(Collectors.toList());
+    }
 
     @Override
     public Page<DcDealerDto> findAllDto(Pageable pageable) {

@@ -15,6 +15,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+
+import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
@@ -26,6 +28,11 @@ public class DealerController {
     @GetMapping("/")
     public ResponseEntity<?> getAllDealers() {
        return new ResponseEntity<>(dealerService.findAllDto(), HttpStatus.OK);
+    }
+    
+    @GetMapping("/filter/")
+    public ResponseEntity<?> getDealersByDealerGroup(@RequestParam("idDealerGroup") BigDecimal idDealerGroup) {
+       return new ResponseEntity<>(dealerService.findAllByDealerGroupDto(idDealerGroup), HttpStatus.OK);
     }
 
     @GetMapping("/list")

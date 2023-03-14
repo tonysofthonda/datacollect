@@ -1200,4 +1200,13 @@ public class DcFinancialStateService extends RecordStatusableService<DcFinancial
 			dcGrossProfitAnalysisRepository.save(dcGrossProfitAnalysis.get());
 		}
 	}
+
+	@Override
+	public List<DcFinancialStateDto> filterAllFinancialStateDto() {
+		List<DcFinancialStateDto> financialStateListDto = new ArrayList<>();
+		repository.filterAllFinancialState().forEach(data -> {
+			financialStateListDto.add(dtoConverter.convertFinancialStateMin(data));
+		});
+		return financialStateListDto;
+	}
 }

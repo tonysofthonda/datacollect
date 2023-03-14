@@ -93,4 +93,6 @@ public interface IDcFinancialStateService extends IRecordStatusableService<DcFin
 	public void updateIncomeDeductionPage3(IncomeDeductionDto incomeDeductionDto);
 
 	public void updateIncomeAndExpensesPage4(GrossProfitPage4Dto grossProfitPage4Dto);
+
+	public List<DcFinancialStateDto> filterAllFinancialStateDto();
 }

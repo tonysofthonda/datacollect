@@ -20,6 +20,8 @@ public class DcFinancialStateDto {
     private List<DcFinancialStateXStatusDto> statuses;
 
     private List<DcFinancialStateXAccountValueDto> accountValues;
+    
+    private Long bstate;
 
     public Long getId() {
         return id;
@@ -83,5 +85,13 @@ public class DcFinancialStateDto {
 
 	public void setFlatBtnExcel(boolean flatBtnExcel) {
 		this.flatBtnExcel = flatBtnExcel;
+	}
+
+	public Long getBstate() {
+		return bstate;
+	}
+
+	public void setBstate(Long bstate) {
+		this.bstate = bstate;
 	}
 }

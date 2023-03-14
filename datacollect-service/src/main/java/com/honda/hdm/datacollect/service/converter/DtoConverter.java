@@ -378,7 +378,7 @@ public class DtoConverter {
         dto.setMonth(financialState.getMonth());
         dto.setLimitDate(financialState.getLimitDate());
         dto.setStatuses(financialState.getStatuses().stream().map(this::convertFinancialStateXStatusWithoutFinancialState).collect(Collectors.toList()));
-        dto.setAccountValues(financialState.getAccountValues().stream().map(this::convertFinancialStateXAccountValueWithoutFinancialState).collect(Collectors.toList()));
+//        dto.setAccountValues(financialState.getAccountValues().stream().map(this::convertFinancialStateXAccountValueWithoutFinancialState).collect(Collectors.toList()));
         return dto;
     }
 
@@ -392,6 +392,7 @@ public class DtoConverter {
         dto.setFlatBtnExcel(financialState.getMonth() == date);
         dto.setLimitDate(financialState.getLimitDate());
         dto.setStatuses(financialState.getStatuses().stream().map(this::convertFinancialStateXStatusMin).collect(Collectors.toList()));
+        dto.setBstate(financialState.getBstate());
         return dto;
     }
 

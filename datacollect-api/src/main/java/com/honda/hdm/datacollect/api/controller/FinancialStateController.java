@@ -65,6 +65,11 @@ public class FinancialStateController {
 
     @Autowired
     ObjectMapper mapper;
+    
+    @GetMapping("/")
+    public ResponseEntity<?> getAllFinancialStates() {
+        return new ResponseEntity<>(financialStateService.filterAllFinancialStateDto(), HttpStatus.OK);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<?> listFinancialStates(

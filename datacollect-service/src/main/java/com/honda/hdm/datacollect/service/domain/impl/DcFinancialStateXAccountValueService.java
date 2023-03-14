@@ -133,15 +133,16 @@ public class DcFinancialStateXAccountValueService extends BaseDomainService<DcFi
         if(financialState == null){
             return null;
         }
-        financialState.setAccountValues(values.stream().map(value->{
-            DcFinancialStateXAccountValue currentValue = findByAccountValueAndFinancialState(value.getAccountValue().getId(), value.getFinancialState().getId());
-            if(currentValue != null){
-                value.setId(currentValue.getId());
-            }
-            return value;
-        }).collect(Collectors.toList()));
+//        financialState.setAccountValues(values.stream().map(value->{
+//            DcFinancialStateXAccountValue currentValue = findByAccountValueAndFinancialState(value.getAccountValue().getId(), value.getFinancialState().getId());
+//            if(currentValue != null){
+//                value.setId(currentValue.getId());
+//            }
+//            return value;
+//        }).collect(Collectors.toList()));
         DcFinancialState newFinancialState = financialStateService.save(financialState);
-        return newFinancialState.getAccountValues();
+        //return newFinancialState.getAccountValues();
+        return null;
     }
 
     @Transactional

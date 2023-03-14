@@ -10,6 +10,7 @@ import com.honda.hdm.datacollect.model.entity.DcDealerGroup;
 import com.honda.hdm.datacollect.repository.base.IBaseStatusableRepository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,8 @@ public interface DcDealerRepository extends IBaseStatusableRepository<DcDealer, 
     public DcDealer findOneByDealerNumberIgnoreCase(String dealerNumber);
 
     public DcDealer findOneByNameIgnoreCase(String name);
+    
+    List<DcDealer> findAllByDcDealerGroupId(BigDecimal id);
 
     public Long countByDcDealerGroup(DcDealerGroup dealerGroup);
 
