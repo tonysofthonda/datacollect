@@ -21,9 +21,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DcDealerGroupRepository extends IBaseStatusableRepository<DcDealerGroup, BigDecimal> {
 
-    DcDealerGroup findByName(@Param("name") String name);
+	 DcDealerGroup findByName(@Param("name") String name);
 
-    @Query("select dc from DcDealerGroup dc where (dc.name like %?1%) and dc.dcRecordStatusId = 1")
-    public Page<DcDealerGroup> findAllByTerm(String term, Pageable pageable);
+    @Query("select dc from DcDealerGroup dc where UPPER(dc.name) like CONCAT('%', UPPER(:term), '%') and dc.dcRecordStatusId = 1")
+    public Page<DcDealerGroup> findAllByTerm(@Param ("term") String term, Pageable pageable);
 
 }

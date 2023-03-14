@@ -31,7 +31,7 @@ public interface IBaseStatusableRepository<T extends Object, ID extends Serializ
      * valid values)
      * @return Found records
      */
-    @Query("select e from #{#entityName} e where e.dcRecordStatusId = :dcRecordStatusId")
+    @Query("select e from #{#entityName} e where e.dcRecordStatusId = :dcRecordStatusId order by e.id desc")
     public <S extends T> List<S> findByRecordStatusId(@Param("dcRecordStatusId") Integer dcRecordStatus);
 
     /**
@@ -42,7 +42,7 @@ public interface IBaseStatusableRepository<T extends Object, ID extends Serializ
      * valid values)
      * @return Found records
      */
-    @Query("select e from #{#entityName} e where e.dcRecordStatusId = :dcRecordStatusId")
+    @Query("select e from #{#entityName} e where e.dcRecordStatusId = :dcRecordStatusId order by e.id desc")
     public <S extends T> Page<S> findByRecordStatusId(@Param("dcRecordStatusId") Integer dcRecordStatus, Pageable pageable);
 
     /**
@@ -53,7 +53,7 @@ public interface IBaseStatusableRepository<T extends Object, ID extends Serializ
      * for using valid values)
      * @return Found records
      */
-    @Query("select e from #{#entityName} e where e.dcRecordStatusId in :dcRecordStatusList")
+    @Query("select e from #{#entityName} e where e.dcRecordStatusId in :dcRecordStatusList order by e.id desc")
     public <S extends T> List<S> findByRecordStatusIdIn(@Param("dcRecordStatusList") List<Integer> dcRecordStatusList);
 
     /**
@@ -64,7 +64,7 @@ public interface IBaseStatusableRepository<T extends Object, ID extends Serializ
      * for using valid values)
      * @return Found records
      */
-    @Query("select e from #{#entityName} e where e.dcRecordStatusId in :dcRecordStatusList")
+    @Query("select e from #{#entityName} e where e.dcRecordStatusId in :dcRecordStatusList order by e.id desc")
     public <S extends T> Page<S> findByRecordStatusIdIn(@Param("dcRecordStatusList") List<Integer> dcRecordStatusList, Pageable pageable);
 
     
