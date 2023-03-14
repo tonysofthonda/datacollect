@@ -12,9 +12,9 @@ import org.springframework.stereotype.Repository;
 public interface DcFacilityRepository extends IBaseStatusableRepository<DcFacility, Long>{
     
     
-    @Query("select e from #{#entityName} e where e.concept = (:concept)")
-    DcFacility findIfExistByConcept(@Param("concept") String concept);
+	 @Query("select e from #{#entityName} e where e.concept = (:concept) ORDER BY e.id desc")
+	    DcFacility findIfExistByConcept(@Param("concept") String concept);
 
-    @Query("select dc from DcFacility dc where (dc.concept like %?1% or dc.description like %?1%) and dc.dcRecordStatusId = 1")
-    public Page<DcFacility> findAllByTerm(String term, Pageable pageable);
+    @Query("select dc from DcFacility dc where UPPER(dc.concept) like CONCAT('%', UPPER(:concept), '%') or UPPER(dc.description) like CONCAT('%', UPPER(:concept), '%') and dc.dcRecordStatusId = 1")
+    public Page<DcFacility> findAllByTerm(@Param ("concept") String term, Pageable pageable);
 }
